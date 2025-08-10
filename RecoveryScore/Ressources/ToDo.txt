@@ -1,0 +1,19 @@
+ToDo List
+- [ ] Dashboard and other pages: Align all Scores presentation (See why this score) & behavior (For all while in Dashboard either I click on the card then I'm redirected to the page or the tab. Or i Clic on see why this score then I'm redirected to a text explaining this score calculation)
+- [ ] RecoveryBiometrics: Presentation Issue, Readiness score is displayed as an independant item that I can scroll and the rest of the page is displayed as an independant item that I can scroll, it should be one page
+- [ ] Dashboard and RecoveryBiometrics: Readiness Score displayed is not the same
+- [ ] Readiness Explained: Add emojis to all lines for all scenarios like "Within normal range => add an emoji"
+- [ ] Algorithm & Calculus: review the way Readiness score calcul is made
+- [ ] Algorithm & Calculus: review the way Perceived Exertion score calcul is made
+- [ ] Algorithm & Calculus: review the way Self Assessment score calcul is made
+- [ ] Algorithm & Calculus: review the way Nutrition score calcul is made
+- [ ] Dashboard: Nutrition Score: if i click on "see details" I access the nutrition page but. I should see Why this score as a link and it should lead to an axplenation page. When I clic on the card itself right now nothing happens, the behavior that I have when i clic on see details right now (access the nutrition page) is the one I should have when i clic the card
+- [ ] Dashboard: the workout card, instead of displaying the Average perceived Exertion with the same presentation as the others instead it's showing a weird custom code. ANd a see all workout link.
+- [ ] Dashboard: Today program is shown which is great but I'm missing Adherance score displayed in the same way as the others with the See why score
+- [ ] Dashboard: Self Assessment Score and Self assessment card of the day are both missinng
+- [ ] Data: start fetching real nutrition data
+- [ ] Data: start fetching real user data (height, weight, mensuration)
+- [ ] Backend Logic: how to save user data in app?
+- [ ] Backend Logic: develop a fully functional Program Page, meaning it will save information entered by the user
+- [ ] Backend Logic: develop a fully functional Self-Assessment Page, meaning it will save information entered by the user
+- [ ] Backend Logic: develop a fully functional AccountView, meaning it will save information entered by the user

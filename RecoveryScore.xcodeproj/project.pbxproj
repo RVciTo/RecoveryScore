@@ -1,0 +1,587 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		09D485F22E337291002E7628 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 09D485DC2E33728F002E7628 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 09D485E32E33728F002E7628;
+			remoteInfo = RecoveryScore;
+		};
+		09D485FC2E337291002E7628 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 09D485DC2E33728F002E7628 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 09D485E32E33728F002E7628;
+			remoteInfo = RecoveryScore;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		09D485E42E33728F002E7628 /* RecoveryScore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RecoveryScore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		09D485F12E337291002E7628 /* RecoveryScoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RecoveryScoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		09D485FB2E337291002E7628 /* RecoveryScoreUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RecoveryScoreUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		09174A4A2E354C560080AA1C /* Exceptions for "RecoveryScore" folder in "RecoveryScore" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Ressources/ToDo.txt,
+			);
+			target = 09D485E32E33728F002E7628 /* RecoveryScore */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		09174A8F2E360D6A0080AA1C /* Exceptions for "RecoveryScore" folder in "Compile Sources" phase from "RecoveryScore" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 09D485E02E33728F002E7628 /* Sources */;
+			membershipExceptions = (
+				Ressources/ToDo.txt,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		09D485E62E33728F002E7628 /* RecoveryScore */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				09174A4A2E354C560080AA1C /* Exceptions for "RecoveryScore" folder in "RecoveryScore" target */,
+				09174A8F2E360D6A0080AA1C /* Exceptions for "RecoveryScore" folder in "Compile Sources" phase from "RecoveryScore" target */,
+			);
+			path = RecoveryScore;
+			sourceTree = "<group>";
+		};
+		09D485F42E337291002E7628 /* RecoveryScoreTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RecoveryScoreTests;
+			sourceTree = "<group>";
+		};
+		09D485FE2E337291002E7628 /* RecoveryScoreUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RecoveryScoreUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		09D485E12E33728F002E7628 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		09D485EE2E337291002E7628 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		09D485F82E337291002E7628 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		09D485DB2E33728F002E7628 = {
+			isa = PBXGroup;
+			children = (
+				09D485E62E33728F002E7628 /* RecoveryScore */,
+				09D485F42E337291002E7628 /* RecoveryScoreTests */,
+				09D485FE2E337291002E7628 /* RecoveryScoreUITests */,
+				09D485E52E33728F002E7628 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		09D485E52E33728F002E7628 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				09D485E42E33728F002E7628 /* RecoveryScore.app */,
+				09D485F12E337291002E7628 /* RecoveryScoreTests.xctest */,
+				09D485FB2E337291002E7628 /* RecoveryScoreUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		09D485E32E33728F002E7628 /* RecoveryScore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 09D486052E337291002E7628 /* Build configuration list for PBXNativeTarget "RecoveryScore" */;
+			buildPhases = (
+				09D485E02E33728F002E7628 /* Sources */,
+				09D485E12E33728F002E7628 /* Frameworks */,
+				09D485E22E33728F002E7628 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				09D485E62E33728F002E7628 /* RecoveryScore */,
+			);
+			name = RecoveryScore;
+			packageProductDependencies = (
+			);
+			productName = RecoveryScore;
+			productReference = 09D485E42E33728F002E7628 /* RecoveryScore.app */;
+			productType = "com.apple.product-type.application";
+		};
+		09D485F02E337291002E7628 /* RecoveryScoreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 09D486082E337291002E7628 /* Build configuration list for PBXNativeTarget "RecoveryScoreTests" */;
+			buildPhases = (
+				09D485ED2E337291002E7628 /* Sources */,
+				09D485EE2E337291002E7628 /* Frameworks */,
+				09D485EF2E337291002E7628 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				09D485F32E337291002E7628 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				09D485F42E337291002E7628 /* RecoveryScoreTests */,
+			);
+			name = RecoveryScoreTests;
+			packageProductDependencies = (
+			);
+			productName = RecoveryScoreTests;
+			productReference = 09D485F12E337291002E7628 /* RecoveryScoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		09D485FA2E337291002E7628 /* RecoveryScoreUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 09D4860B2E337291002E7628 /* Build configuration list for PBXNativeTarget "RecoveryScoreUITests" */;
+			buildPhases = (
+				09D485F72E337291002E7628 /* Sources */,
+				09D485F82E337291002E7628 /* Frameworks */,
+				09D485F92E337291002E7628 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				09D485FD2E337291002E7628 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				09D485FE2E337291002E7628 /* RecoveryScoreUITests */,
+			);
+			name = RecoveryScoreUITests;
+			packageProductDependencies = (
+			);
+			productName = RecoveryScoreUITests;
+			productReference = 09D485FB2E337291002E7628 /* RecoveryScoreUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		09D485DC2E33728F002E7628 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					09D485E32E33728F002E7628 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					09D485F02E337291002E7628 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 09D485E32E33728F002E7628;
+					};
+					09D485FA2E337291002E7628 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 09D485E32E33728F002E7628;
+					};
+				};
+			};
+			buildConfigurationList = 09D485DF2E33728F002E7628 /* Build configuration list for PBXProject "RecoveryScore" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 09D485DB2E33728F002E7628;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 09D485E52E33728F002E7628 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				09D485E32E33728F002E7628 /* RecoveryScore */,
+				09D485F02E337291002E7628 /* RecoveryScoreTests */,
+				09D485FA2E337291002E7628 /* RecoveryScoreUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		09D485E22E33728F002E7628 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		09D485EF2E337291002E7628 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		09D485F92E337291002E7628 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		09D485E02E33728F002E7628 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		09D485ED2E337291002E7628 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		09D485F72E337291002E7628 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		09D485F32E337291002E7628 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 09D485E32E33728F002E7628 /* RecoveryScore */;
+			targetProxy = 09D485F22E337291002E7628 /* PBXContainerItemProxy */;
+		};
+		09D485FD2E337291002E7628 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 09D485E32E33728F002E7628 /* RecoveryScore */;
+			targetProxy = 09D485FC2E337291002E7628 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		09D486032E337291002E7628 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		09D486042E337291002E7628 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		09D486062E337291002E7628 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = RecoveryScore/RecoveryScore.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KPC63TT6F3;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = RecoveryScore;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "We use your health data to provide personalized coaching insights.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "We use your health data to improve your training recommendations.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pitsana.com.RecoveryScore;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		09D486072E337291002E7628 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = RecoveryScore/RecoveryScore.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KPC63TT6F3;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = RecoveryScore;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "We use your health data to provide personalized coaching insights.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "We use your health data to improve your training recommendations.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pitsana.com.RecoveryScore;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		09D486092E337291002E7628 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "pitsana.com.Athletica-OSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RecoveryScore.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RecoveryScore";
+			};
+			name = Debug;
+		};
+		09D4860A2E337291002E7628 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "pitsana.com.Athletica-OSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RecoveryScore.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RecoveryScore";
+			};
+			name = Release;
+		};
+		09D4860C2E337291002E7628 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "pitsana.com.Athletica-OSUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RecoveryScore;
+			};
+			name = Debug;
+		};
+		09D4860D2E337291002E7628 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "pitsana.com.Athletica-OSUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RecoveryScore;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		09D485DF2E33728F002E7628 /* Build configuration list for PBXProject "RecoveryScore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09D486032E337291002E7628 /* Debug */,
+				09D486042E337291002E7628 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		09D486052E337291002E7628 /* Build configuration list for PBXNativeTarget "RecoveryScore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09D486062E337291002E7628 /* Debug */,
+				09D486072E337291002E7628 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		09D486082E337291002E7628 /* Build configuration list for PBXNativeTarget "RecoveryScoreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09D486092E337291002E7628 /* Debug */,
+				09D4860A2E337291002E7628 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		09D4860B2E337291002E7628 /* Build configuration list for PBXNativeTarget "RecoveryScoreUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09D4860C2E337291002E7628 /* Debug */,
+				09D4860D2E337291002E7628 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 09D485DC2E33728F002E7628 /* Project object */;
+}

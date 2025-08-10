@@ -1,0 +1,17 @@
+//
+//  RecoveryScoreTests.swift
+//  RecoveryScore
+//
+//  Created by Frova Hervé on 25/07/2025.
+//
+
+import Testing
+@testable import Athletica_OS
+
+struct Athletica_OSTests {
+
+    @Test func example() async throws {
+        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    }
+
+}
