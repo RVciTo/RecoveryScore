@@ -35,7 +35,7 @@ struct ReadinessCalculator {
         } else if hrvChange < -0.1 {
             score -= 5
         } else if hrvChange > 0.2 {
-            score += 5
+            score += 10
         }
 
         // MARK: - RHR
@@ -47,20 +47,32 @@ struct ReadinessCalculator {
             score -= 5
         }
 
+        // Compound autonomic: HRV down & RHR up
+        if hrvChange < -0.1 && rhrChange > 0.05 {
+            score -= 5
+        }
+
         // MARK: - HRR
         // 💓 HRR — Relative to baseline (higher is better)
         let hrrChange = (input.hrr - baseline.averageHRR) / baseline.averageHRR
         if hrrChange > 0.2 {
-            score += 5
+            score += 10
+        } else if hrrChange < -0.1 {
+            score -= 5
         }
+
+        // MARK: - Rest day detection
+        let now = Date()
+        let restDay = input.recentWorkouts.first(where: { $0.date >= Calendar.current.date(byAdding: .hour, value: -24, to: now)! }) == nil
 
         // MARK: - Sleep
         // 😴 Sleep — Duration & quality
         if input.sleepHours < 6 {
-            score -= 10
+            score -= restDay ? 5 : 10
         }
         if input.deepSleep < 1.0 {
-            score -= 5
+            // Heavier penalty if Deep < 30 min
+            score -= (input.deepSleep < 0.5 ? 15 : 10)
         }
 
         // MARK: - Respiratory
@@ -73,6 +85,11 @@ struct ReadinessCalculator {
         // MARK: - Oxygen Saturation
         // 🧪 Oxygen Saturation — <95% = penalty
         if input.o2 < 95 {
+            score -= 10
+        }
+
+        // Compound: RR high + O2 low
+        if respiratoryRateChange > 0.1 && input.o2 < 95 {
             score -= 5
         }
 
@@ -80,12 +97,17 @@ struct ReadinessCalculator {
         // 🌡️ Wrist Temperature — Relative to baseline (higher deviation = strain)
         let wristTempChange = input.wristTemp - baseline.averageWristTemp
         if wristTempChange > 0.3 {
-            score -= 10
+            // Stronger penalty only when paired with autonomic strain
+            if hrvChange < -0.1 || rhrChange > 0.05 {
+                score -= 10
+            } else {
+                score -= 5
+            }
         }
 
         // MARK: - Energy Burned
-        // 🔥 Active Energy Burned — High recent strain
-        if input.energyBurned > 1000 {
+        // 🔥 Active Energy Burned — penalty only if >20% above 7‑day average
+        if baseline.averageActiveEnergy > 0 && input.energyBurned > 1.2 * baseline.averageActiveEnergy {
             score -= 10
         }
 
@@ -96,17 +118,23 @@ struct ReadinessCalculator {
         }
 
         // MARK: - Workouts
-        // 🏋️‍♀️ Recent Workouts: RPE ≥ 7 and long duration (≥30 min)
-        let now = Date()
-        let hardWorkouts = input.recentWorkouts.filter {
-            $0.date >= Calendar.current.date(byAdding: .hour, value: -48, to: now)! &&
-            ($0.rpe ?? 0) >= 7 &&
-            $0.duration >= 1800
+        // 🏋️‍♀️ 7‑day cumulative load and monotony
+        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: now)!
+        let weekWorkouts = input.recentWorkouts.filter { $0.date >= weekAgo }
+        let dailyBuckets = Dictionary(grouping: weekWorkouts, by: { Calendar.current.startOfDay(for: $0.date) })
+        let dailyLoads: [Double] = dailyBuckets.values.map { day -> Double in
+            day.reduce(0.0) { $0 + (($1.rpe ?? 0) * ($1.duration / 60.0)) }
         }
-
-        if hardWorkouts.count >= 2 {
+        let weeklyLoad = dailyLoads.reduce(0, +)
+        // Monotony = mean / std (avoid divide by zero)
+        let mean = dailyLoads.isEmpty ? 0 : (dailyLoads.reduce(0,+) / Double(dailyLoads.count))
+        let variance = dailyLoads.reduce(0.0) { $0 + pow(($1 - mean), 2) }
+        let std = dailyLoads.count > 1 ? sqrt(variance / Double(dailyLoads.count - 1)) : 0
+        let monotony = (std > 0) ? (mean / std) : (mean > 0 ? 10 : 0)
+        if baseline.averageWeeklyLoad > 0 && weeklyLoad > 1.25 * baseline.averageWeeklyLoad {
             score -= 10
-        } else if hardWorkouts.count == 1 {
+        }
+        if monotony > 2.0 {
             score -= 5
         }
 

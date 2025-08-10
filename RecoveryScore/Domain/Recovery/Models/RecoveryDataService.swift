@@ -7,6 +7,14 @@
       import Foundation
       import HealthKit
 
+/// Lightweight protocol so the ViewModel can be tested with a mock service.
+protocol RecoveryDataServicing {
+    func fetchRecoveryData() async -> RecoveryDataBundle
+}
+
+extension RecoveryDataService: RecoveryDataServicing {}
+
+
       /// Holds all metrics required to compute a readiness score.
       struct RecoveryDataBundle {
           let hrv: (Double, Date)?

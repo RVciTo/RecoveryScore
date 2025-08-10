@@ -13,6 +13,8 @@ import HealthKit
 @MainActor
 class RecoveryBiometricsViewModel: ObservableObject {
 
+    private let service: RecoveryDataServicing
+
     // MARK: - Published Properties (Biometric Metrics)
 
     // Status/messages for missing data
@@ -63,7 +65,8 @@ class RecoveryBiometricsViewModel: ObservableObject {
     // MARK: - Init
 
     /// Initializes the ViewModel. Call `loadAllMetrics()` from the view to fetch data.
-    init() {
+    init(service: RecoveryDataServicing = RecoveryDataService()) {
+        self.service = service
         // No automatic fetch; call loadAllMetrics() from the view with .task
     }
 
@@ -71,7 +74,7 @@ class RecoveryBiometricsViewModel: ObservableObject {
 
     /// Loads all recovery metrics and computes the readiness score.
     public func loadAllMetrics() async {
-        let bundle = await RecoveryDataService().fetchRecoveryData()
+        let bundle = await service.fetchRecoveryData()
 
         // Update published properties on the main actor
         hrv = bundle.hrv

@@ -6,7 +6,7 @@
 //
 
 import Testing
-@testable import Athletica_OS
+@testable import RecoveryScore
 
 struct Athletica_OSTests {
 

@@ -16,4 +16,6 @@ struct BaselineData {
     let averageHRR: Double
     let averageRespiratoryRate: Double
     let averageWristTemp: Double
+    let averageActiveEnergy: Double
+    let averageWeeklyLoad: Double
 }

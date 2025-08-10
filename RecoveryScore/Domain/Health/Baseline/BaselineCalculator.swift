@@ -28,7 +28,9 @@ struct BaselineCalculator {
             averageHRR: await hrr ?? 0.0,
             averageRespiratoryRate: await respRate ?? 0.0,
             averageWristTemp: await wristTemp ?? 0.0
-        )
+        ,
+            averageActiveEnergy: 0.0,
+            averageWeeklyLoad: 0.0)
     }
 
     // MARK: - Private Helpers
