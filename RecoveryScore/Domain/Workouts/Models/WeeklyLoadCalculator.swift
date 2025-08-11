@@ -1,6 +1,11 @@
+/// WeeklyLoadCalculator
+/// Utilities for training load analytics.
+/// - Weekly load is sum over a day of (session RPE × minutes) aggregated per week.
+/// - `averageOfPastWeeks` computes a long-term baseline as the average of up to N
+///   full weeks **before** the current 7-day window. Current week is excluded.
+
 import Foundation
 
-/// Utility to compute weekly training load (session-RPE × minutes) and long-term averages.
 enum WeeklyLoadCalculator {
     /// Returns the average weekly load across the N weeks **before** the current 7‑day window.
     /// - Parameters:

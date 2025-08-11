@@ -206,7 +206,8 @@ struct DashboardView: View {
                     }
                 }
                 .padding()
-                .onChange(of: viewModel.readinessScore) { _ in
+                .onChange(of: viewModel.readinessScore, initial: false) { oldValue, newValue in
+                    guard oldValue != newValue, newValue != nil else { return }
                     let gen = UINotificationFeedbackGenerator()
                     gen.notificationOccurred(.success)
                 }

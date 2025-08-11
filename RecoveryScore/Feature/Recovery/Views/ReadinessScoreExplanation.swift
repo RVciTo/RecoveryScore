@@ -206,7 +206,6 @@ private extension ReadinessScoreExplanation {
         if let sl = viewModel.sleepInfo {
             let total = sl.0
             let inBed = sl.1
-            let start = sl.2
             let end = sl.3
             let stages = sl.4
             let core = stages["Core"] ?? 0

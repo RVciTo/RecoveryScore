@@ -1,22 +1,22 @@
-//
-//  ReadinessCalculator.swift
-//  RecoveryScore
-//
-//  Created by Frova Hervé on 27/07/2025.
-//
-
+/// ReadinessCalculator
+/// Computes a 0–100 daily readiness score from today’s metrics vs baselines.
+/// Inputs: HRV, RHR, HRR, sleep (total & deep), respiratory rate, SpO₂,
+/// wrist temperature, active energy, and recent workouts (RPE × minutes).
+/// Key rules:
+/// - Bonuses: HRV > +20% (+10), HRR > +20% (+10)
+/// - Autonomic penalties: HRV < −10% (−5), < −30% (−15); RHR > +5% (−5), > +15% (−15)
+/// - Compound: HRV < −10% & RHR > +5% (−5)
+/// - Sleep: total < 6h → −5 if rest day, else −10; deep < 1h → −5
+/// - Respiratory: O₂ < 95% (−10); RR > +10% & O₂ < 95% (−5)
+/// - Wrist temp: +0.3°C → −10 only with autonomic strain, else −5
+/// - Energy: today > +20% vs 7-day avg → −10 (baseline must exist)
+/// - Workouts: 7-day load > +25% vs 4-week baseline (excl current) & ≥3 workouts → −10
+///             Monotony: mean/std > 2.0 with ≥4 days, ≥3 non-zero days, std > 0.01 → −5
+/// Output is clamped to 0…100.
+///
+///
 import Foundation
 
-///
-/// ReadinessCalculator.swift
-/// Calculates a readiness score based on biometric and behavioral data.
-/// Based on comparisons to personal baselines and current metrics like HRV, RHR, sleep, etc.
-///
-
-/// Calculates a readiness score based on deviation from personalized baseline metrics.
-///
-/// The readiness score helps determine physical and physiological recovery status
-/// and is derived from multiple biometric and behavioral inputs.
 struct ReadinessCalculator {
     /// Computes the readiness score based on current inputs and baseline values.
     ///

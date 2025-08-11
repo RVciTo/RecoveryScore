@@ -226,7 +226,6 @@ final class HealthDataStore {
                 let workoutStart = workout.startDate
                 let workoutEnd = workout.endDate
                 let afterEnd = workoutEnd.addingTimeInterval(60)
-                let beforeEnd = workoutEnd.addingTimeInterval(-60)
                 // Fetch HR samples from workoutStart to one minute after workoutEnd
                 let hrPredicate = HKQuery.predicateForSamples(withStart: workoutStart, end: afterEnd, options: .strictStartDate)
                 let hrSort = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
