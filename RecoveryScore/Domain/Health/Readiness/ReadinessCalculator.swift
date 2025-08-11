@@ -71,8 +71,7 @@ struct ReadinessCalculator {
             score -= restDay ? 5 : 10
         }
         if input.deepSleep < 1.0 {
-            // Heavier penalty if Deep < 30 min
-            score -= (input.deepSleep < 0.5 ? 15 : 10)
+            score -= 5
         }
 
         // MARK: - Respiratory
@@ -126,17 +125,24 @@ struct ReadinessCalculator {
             day.reduce(0.0) { $0 + (($1.rpe ?? 0) * ($1.duration / 60.0)) }
         }
         let weeklyLoad = dailyLoads.reduce(0, +)
+        // Weekly load penalty only when this week's load is meaningfully above long‑term average
+        if baseline.averageWeeklyLoad > 0 && weekWorkouts.count >= 3 && weeklyLoad > 1.25 * baseline.averageWeeklyLoad {
+            score -= 10
+        }
         // Monotony = mean / std (avoid divide by zero)
+        
         let mean = dailyLoads.isEmpty ? 0 : (dailyLoads.reduce(0,+) / Double(dailyLoads.count))
         let variance = dailyLoads.reduce(0.0) { $0 + pow(($1 - mean), 2) }
         let std = dailyLoads.count > 1 ? sqrt(variance / Double(dailyLoads.count - 1)) : 0
-        let monotony = (std > 0) ? (mean / std) : (mean > 0 ? 10 : 0)
-        if baseline.averageWeeklyLoad > 0 && weeklyLoad > 1.25 * baseline.averageWeeklyLoad {
-            score -= 10
+        // Monotony guard: require enough days and meaningful variability
+        let nonZeroDays = dailyLoads.filter { $0 > 0 }.count
+        if dailyLoads.count >= 4 && nonZeroDays >= 3 && std > 0.01 {
+            let monotony = mean / std
+            if monotony > 2.0 {
+                score -= 5
+            }
         }
-        if monotony > 2.0 {
-            score -= 5
-        }
+    
 
         return max(0, min(score, 100))
     }

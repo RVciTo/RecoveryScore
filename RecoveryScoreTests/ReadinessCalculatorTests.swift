@@ -76,3 +76,28 @@ final class ReadinessCalculatorTests: XCTestCase {
         let s = calc.calculateScore(from: input, baseline: base)
         XCTAssertLessThan(s, 90) // should penalize for high load and monotony
     }
+
+
+    func testMonotonyGuard() {
+        // Baseline weekly load small but defined
+        let base = BaselineData(averageHRV: 100, averageRHR: 40, averageHRR: 20, averageRespiratoryRate: 16, averageWristTemp: 35.6, averageActiveEnergy: 400, averageWeeklyLoad: 200)
+        let now = Date()
+        // Only 2 workouts -> should NOT compute monotony, no penalty
+        let w2 = [
+            WorkoutSummary(id: UUID(), date: now.addingTimeInterval(-3600*24*1), type: .running, duration: 60*60, energy: 500, rpe: 7, rpeSource: "t"),
+            WorkoutSummary(id: UUID(), date: now.addingTimeInterval(-3600*24*3), type: .running, duration: 60*60, energy: 500, rpe: 7, rpeSource: "t")
+        ]
+        let input2 = ReadinessInput(hrv: 100, rhr: 40, hrr: 20, sleepHours: 7.5, deepSleep: 1.2, remSleep: 1.0, respiratoryRate: 16, wristTemp: 35.6, o2: 98, energyBurned: 400, mindfulMinutes: 0, recentWorkouts: w2)
+        let s2 = ReadinessCalculator().calculateScore(from: input2, baseline: base)
+        XCTAssertEqual(s2, 100)
+    }
+
+    func testWeeklyLoadPenaltyRequiresBaselineAndCount() {
+        // Baseline load defined; create load > 25% over baseline with >=3 workouts => penalty expected
+        let base = BaselineData(averageHRV: 100, averageRHR: 40, averageHRR: 20, averageRespiratoryRate: 16, averageWristTemp: 35.6, averageActiveEnergy: 400, averageWeeklyLoad: 200)
+        let now = Date()
+        let w = (0..<4).map { i in WorkoutSummary(id: UUID(), date: now.addingTimeInterval(Double(-i*86400)), type: .running, duration: 90*60, energy: 600, rpe: 8, rpeSource: "t") }
+        let s = ReadinessCalculator().calculateScore(from: ReadinessInput(hrv: 100, rhr: 40, hrr: 20, sleepHours: 7.5, deepSleep: 1.2, remSleep: 1.0, respiratoryRate: 16, wristTemp: 35.6, o2: 98, energyBurned: 400, mindfulMinutes: 0, recentWorkouts: w), baseline: base)
+        XCTAssertLessThan(s, 100)
+    }
+    

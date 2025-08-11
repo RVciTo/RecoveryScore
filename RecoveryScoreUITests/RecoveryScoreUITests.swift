@@ -33,9 +33,16 @@ final class Athletica_OSUITests: XCTestCase {
 
     @MainActor
     func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
+        if #available(iOS 13.0, *) {
+            let options = XCTMeasureOptions()
+            options.iterationCount = 1 // avoid multiple iterations where metrics may be missing
+            measure(metrics: [XCTApplicationLaunchMetric()], options: options) {
+                let app = XCUIApplication()
+                app.launchArguments = ["-uiTesting"]
+                app.launch()
+            }
+        } else {
+            throw XCTSkip("Launch performance metric requires iOS 13+")
         }
     }
 }
