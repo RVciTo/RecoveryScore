@@ -20,10 +20,15 @@ import Foundation
 struct ReadinessCalculator {
     /// Computes the readiness score based on current inputs and baseline values.
     ///
+    /// Applies the exact scoring algorithm specified in SCORING.md, starting from 100 and
+    /// applying penalties/bonuses based on deviations from personalized baselines.
+    /// Includes compound rules for multiple system strain detection.
+    ///
     /// - Parameters:
-    ///   - input: The current biometric and behavioral values.
-    ///   - baseline: The user’s personalized average baselines.
-    /// - Returns: A score from 0 to 100 indicating recovery and readiness level.
+    ///   - input: The current biometric and behavioral values from today's data
+    ///   - baseline: The user's personalized 7-day average baselines for comparison
+    /// - Returns: A score from 0 to 100 indicating recovery and readiness level (clamped)
+    /// - Note: Score calculation is deterministic and stateless for consistent results
     func calculateScore(from input: ReadinessInput, baseline: BaselineData) -> Int {
         var score = 100
 

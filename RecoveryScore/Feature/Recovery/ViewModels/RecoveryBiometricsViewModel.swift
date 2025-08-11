@@ -72,7 +72,14 @@ class RecoveryBiometricsViewModel: ObservableObject {
 
     // MARK: - Data Fetching
 
-    /// Loads all recovery metrics and computes the readiness score.
+    /// Loads all recovery metrics from HealthKit and computes the readiness score.
+    /// 
+    /// This method fetches the latest biometric data, calculates personal baselines,
+    /// and generates a readiness score based on deviations from those baselines.
+    /// Updates all published properties for UI consumption.
+    ///
+    /// - Note: Requires HealthKit permissions. Sets error states when mandatory data is missing.
+    /// - Complexity: O(1) - Concurrent data fetching with baseline calculations
     public func loadAllMetrics() async {
         let bundle = await service.fetchRecoveryData()
 
@@ -163,6 +170,13 @@ class RecoveryBiometricsViewModel: ObservableObject {
         appendToTrend(score)
     }
 
+    /// Refreshes HealthKit authorization status and updates the published `isAuthorized` property.
+    ///
+    /// This method checks the current authorization status with HealthKit and updates
+    /// the UI state accordingly. Should be called when the user returns from Settings
+    /// or when checking initial permissions.
+    ///
+    /// - Note: Updates `isAuthorized` on the main actor for UI consumption
     func refreshAuthorization() async {
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             HealthDataStore.shared.getAuthorizationRequestStatus { status in

@@ -15,6 +15,12 @@ struct BaselineCalculator {
     // MARK: - Public API
 
     /// Calculates average baselines concurrently from recent HealthKit data.
+    ///
+    /// Computes 7-day rolling averages for core biometric indicators used in readiness scoring.
+    /// Uses concurrent async operations for optimal performance when fetching multiple metrics.
+    ///
+    /// - Returns: BaselineData containing computed averages, with 0.0 fallback for unavailable metrics
+    /// - Note: Active energy and weekly load baselines are computed separately via other services
     func calculateBaseline() async -> BaselineData {
         async let hrv = fetchAverageHRV()
         async let rhr = fetchAverageRHR()
