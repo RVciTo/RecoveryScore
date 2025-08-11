@@ -9,8 +9,21 @@
 import Foundation
 import HealthKit
 
+/// Protocol for baseline calculation to enable dependency injection
+public protocol BaselineCalculatorProtocol {
+    func calculateBaseline() async -> BaselineData
+}
+
 /// Computes biometric baselines by averaging HealthKit samples from the past 7 days.
-struct BaselineCalculator {
+public struct BaselineCalculator: BaselineCalculatorProtocol {
+    
+    private let healthDataStore: HealthDataStore
+    
+    /// Initializes the calculator with a health data store
+    /// - Parameter healthDataStore: The health data store to use for fetching data
+    public init(healthDataStore: HealthDataStore = HealthDataStore.shared) {
+        self.healthDataStore = healthDataStore
+    }
 
     // MARK: - Public API
 
@@ -21,7 +34,7 @@ struct BaselineCalculator {
     ///
     /// - Returns: BaselineData containing computed averages, with 0.0 fallback for unavailable metrics
     /// - Note: Active energy and weekly load baselines are computed separately via other services
-    func calculateBaseline() async -> BaselineData {
+    public func calculateBaseline() async -> BaselineData {
         async let hrv = fetchAverageHRV()
         async let rhr = fetchAverageRHR()
         async let hrr = fetchAverageHRR()
@@ -52,7 +65,7 @@ struct BaselineCalculator {
     func fetchAverageHRR() async -> Double? {
         // 1) Try native 1-minute HRR samples over the last 7 days
         if let avgNative: Double? = await withCheckedContinuation({ cont in
-            HealthDataStore.shared.fetchQuantitySamples(identifier: .heartRateRecoveryOneMinute, unit: HealthKitUnitCatalog.heartRate, pastDays: 7) { values in
+            healthDataStore.fetchQuantitySamples(identifier: .heartRateRecoveryOneMinute, unit: HealthKitUnitCatalog.heartRate, pastDays: 7) { values in
                 guard !values.isEmpty else { cont.resume(returning: nil); return }
                 cont.resume(returning: values.reduce(0, +) / Double(values.count))
             }
@@ -62,11 +75,11 @@ struct BaselineCalculator {
 
         // 2) Fallback: derive HRR per workout across last 7 days, then average
         if #available(iOS 13.0, *) {
-            let workouts = await HealthDataStore.shared.fetchWorkouts(lastNDays: 7)
+            let workouts = await healthDataStore.fetchWorkouts(lastNDays: 7)
             if !workouts.isEmpty {
                 var derived: [Double] = []
                 for w in workouts {
-                    if let h = await HealthDataStore.shared.deriveHRR(for: w) {
+                    if let h = await healthDataStore.deriveHRR(for: w) {
                         derived.append(h)
                     }
                 }
@@ -78,7 +91,7 @@ struct BaselineCalculator {
 
         // 3) Last resort: use the latest HRR (native or derived around latest workout)
         let latest: (Double, Date) = await withCheckedContinuation { cont in
-            HealthDataStore.shared.fetchLatestHRRecovery { cont.resume(returning: $0 ?? (0, Date.distantPast)) }
+            healthDataStore.fetchLatestHRRecovery { cont.resume(returning: $0 ?? (0, Date.distantPast)) }
         }
         if latest.0 > 0 {
             return latest.0
@@ -97,7 +110,7 @@ struct BaselineCalculator {
 
     private func fetchAverage(_ id: HKQuantityTypeIdentifier, unit: HKUnit) async -> Double? {
         await withCheckedContinuation { continuation in
-            HealthDataStore.shared.fetchQuantitySamples(identifier: id, unit: unit, pastDays: 7) { values in
+            healthDataStore.fetchQuantitySamples(identifier: id, unit: unit, pastDays: 7) { values in
                 guard !values.isEmpty else {
                     continuation.resume(returning: nil)
                     return

@@ -23,7 +23,8 @@ final class RecoveryBiometricsViewModelTests: XCTestCase {
     }
 
     func makeVM(bundle: RecoveryDataBundle) -> RecoveryBiometricsViewModel {
-        RecoveryBiometricsViewModel(service: MockRecoveryDataService(bundle: bundle))
+        let mockService = MockRecoveryDataService(bundle: bundle)
+        return RecoveryBiometricsViewModel(service: mockService)
     }
 
     func testHighReadiness_AllDataPresent() async {

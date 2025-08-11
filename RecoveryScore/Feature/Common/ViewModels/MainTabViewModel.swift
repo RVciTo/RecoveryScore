@@ -48,12 +48,14 @@ public class MainTabViewModel: ObservableObject {
     // MARK: - Dependencies & Helpers
     private let healthStore = HealthDataStore.shared
     private var cancellables = Set<AnyCancellable>()
+    private let dependencyContainer: DependencyContainerProtocol
 
     // Nested ViewModels
-    let recoveryBiometricsViewModel = RecoveryBiometricsViewModel()
+    let recoveryBiometricsViewModel: RecoveryBiometricsViewModel
 
-    public init() {
-        // Initial setup if needed
+    public init(dependencyContainer: DependencyContainerProtocol = DependencyContainer.shared) {
+        self.dependencyContainer = dependencyContainer
+        self.recoveryBiometricsViewModel = dependencyContainer.makeRecoveryBiometricsViewModel()
     }
 
     public func requestHealthKitAuthorization() {

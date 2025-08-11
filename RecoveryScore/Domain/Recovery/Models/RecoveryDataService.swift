@@ -8,7 +8,7 @@
       import HealthKit
 
 /// Lightweight protocol so the ViewModel can be tested with a mock service.
-protocol RecoveryDataServicing {
+public protocol RecoveryDataServicing {
     func fetchRecoveryData() async -> RecoveryDataBundle
 }
 
@@ -16,35 +16,55 @@ extension RecoveryDataService: RecoveryDataServicing {}
 
 
       /// Holds all metrics required to compute a readiness score.
-      struct RecoveryDataBundle {
-          let hrv: (Double, Date)?
-          let rhr: (Double, Date)?
-          let hrr: (Double, Date)?
-          let respiratoryRate: (Double, Date)?
-          let wristTemp: (Double, Date)?
-          let oxygenSaturation: (Double, Date)?
-          let activeEnergyBurned: (Double, Date)?
-          let mindfulMinutes: (Double, Date)?
-          let sleepInfo: (Double, Double, Date, Date, [String: Double])?
-          let baseline: BaselineData
+      public struct RecoveryDataBundle {
+          public let hrv: (Double, Date)?
+          public let rhr: (Double, Date)?
+          public let hrr: (Double, Date)?
+          public let respiratoryRate: (Double, Date)?
+          public let wristTemp: (Double, Date)?
+          public let oxygenSaturation: (Double, Date)?
+          public let activeEnergyBurned: (Double, Date)?
+          public let mindfulMinutes: (Double, Date)?
+          public let sleepInfo: (Double, Double, Date, Date, [String: Double])?
+          public let baseline: BaselineData
+          
+          public init(hrv: (Double, Date)?, rhr: (Double, Date)?, hrr: (Double, Date)?, respiratoryRate: (Double, Date)?, wristTemp: (Double, Date)?, oxygenSaturation: (Double, Date)?, activeEnergyBurned: (Double, Date)?, mindfulMinutes: (Double, Date)?, sleepInfo: (Double, Double, Date, Date, [String: Double])?, baseline: BaselineData) {
+              self.hrv = hrv
+              self.rhr = rhr
+              self.hrr = hrr
+              self.respiratoryRate = respiratoryRate
+              self.wristTemp = wristTemp
+              self.oxygenSaturation = oxygenSaturation
+              self.activeEnergyBurned = activeEnergyBurned
+              self.mindfulMinutes = mindfulMinutes
+              self.sleepInfo = sleepInfo
+              self.baseline = baseline
+          }
       }
 
       /// Service responsible for gathering recovery-related metrics from HealthKit.
-      struct RecoveryDataService {
+      public struct RecoveryDataService {
 
           let healthStore: HealthDataStore
+          let baselineCalculator: BaselineCalculatorProtocol
 
-          /// Initializes the service with a custom or shared HealthDataStore.
+          /// Initializes the service with custom dependencies.
           ///
-          /// - Parameter healthStore: The health data source (default is shared singleton).
-          init(healthStore: HealthDataStore = .shared) {
+          /// - Parameters:
+          ///   - healthStore: The health data source (default is shared singleton).
+          ///   - baselineCalculator: The baseline calculator for computing averages.
+          public init(
+              healthStore: HealthDataStore = .shared,
+              baselineCalculator: BaselineCalculatorProtocol = BaselineCalculator()
+          ) {
               self.healthStore = healthStore
+              self.baselineCalculator = baselineCalculator
           }
 
           /// Fetches the full recovery data bundle: all metrics and baseline values.
           ///
           /// - Returns: A `RecoveryDataBundle` containing the most recent biometric values and baselines.
-          func fetchRecoveryData() async -> RecoveryDataBundle {
+          public func fetchRecoveryData() async -> RecoveryDataBundle {
               async let hrv = fetchLatest(healthStore.fetchLatestHRV)
               async let rhr = fetchLatest(healthStore.fetchLatestRestingHR)
               async let hrr = fetchLatest(healthStore.fetchLatestHRRecovery)
@@ -54,7 +74,7 @@ extension RecoveryDataService: RecoveryDataServicing {}
               async let energy = fetchLatest(healthStore.fetchActiveEnergyBurned)
               async let mindful = fetchLatest(healthStore.fetchMindfulMinutes)
               async let sleep = fetchLatest(healthStore.fetchLastNightSleep)
-              async let baseline = BaselineCalculator().calculateBaseline()
+              async let baseline = baselineCalculator.calculateBaseline()
 
               return await RecoveryDataBundle(
                   hrv: hrv,

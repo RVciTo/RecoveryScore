@@ -11,7 +11,7 @@ import Foundation
 import HealthKit
 
 @MainActor
-class RecoveryBiometricsViewModel: ObservableObject {
+public class RecoveryBiometricsViewModel: ObservableObject {
 
     private let service: RecoveryDataServicing
 
@@ -64,8 +64,11 @@ class RecoveryBiometricsViewModel: ObservableObject {
 
     // MARK: - Init
 
-    /// Initializes the ViewModel. Call `loadAllMetrics()` from the view to fetch data.
-    init(service: RecoveryDataServicing = RecoveryDataService()) {
+    /// Initializes the ViewModel with a recovery data service.
+    /// Call `loadAllMetrics()` from the view to fetch data.
+    ///
+    /// - Parameter service: The service to use for fetching recovery data
+    public init(service: RecoveryDataServicing) {
         self.service = service
         // No automatic fetch; call loadAllMetrics() from the view with .task
     }

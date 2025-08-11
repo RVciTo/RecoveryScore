@@ -10,12 +10,22 @@ import Foundation
 import HealthKit
 
 /// A container holding average values for key biometric metrics over a given period.
-struct BaselineData {
-    let averageHRV: Double
-    let averageRHR: Double
-    let averageHRR: Double
-    let averageRespiratoryRate: Double
-    let averageWristTemp: Double
-    let averageActiveEnergy: Double
-    let averageWeeklyLoad: Double
+public struct BaselineData {
+    public let averageHRV: Double
+    public let averageRHR: Double
+    public let averageHRR: Double
+    public let averageRespiratoryRate: Double
+    public let averageWristTemp: Double
+    public let averageActiveEnergy: Double
+    public let averageWeeklyLoad: Double
+    
+    public init(averageHRV: Double, averageRHR: Double, averageHRR: Double, averageRespiratoryRate: Double, averageWristTemp: Double, averageActiveEnergy: Double, averageWeeklyLoad: Double) {
+        self.averageHRV = averageHRV
+        self.averageRHR = averageRHR
+        self.averageHRR = averageHRR
+        self.averageRespiratoryRate = averageRespiratoryRate
+        self.averageWristTemp = averageWristTemp
+        self.averageActiveEnergy = averageActiveEnergy
+        self.averageWeeklyLoad = averageWeeklyLoad
+    }
 }

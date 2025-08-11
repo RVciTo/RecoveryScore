@@ -83,8 +83,8 @@ public enum HealthKitUnitCatalog {
     public static let dietaryVitaminD = HKUnit.gramUnit(with: .milli)       // milligrams
     // TODO: Add units for other new metrics (e.g., VO2Max, distance, etc.)
 }
-final class HealthDataStore {
-    static let shared = HealthDataStore()
+public final class HealthDataStore {
+    public static let shared = HealthDataStore()
     /// Underlying HealthKit store for queries and authorization requests.
     private let healthStore = HKHealthStore()
 
@@ -658,7 +658,7 @@ final class HealthDataStore {
     /// try await store.requestAuthorization()
     /// ```
     @available(iOS 13.0, *)
-    func requestAuthorization() async throws {
+    public func requestAuthorization() async throws {
         let success = await withCheckedContinuation { continuation in
             self.requestAuthorization { success in
                 continuation.resume(returning: success)
@@ -679,7 +679,7 @@ final class HealthDataStore {
     /// let (hrv, date) = try await store.fetchLatestHRV()
     /// ```
     @available(iOS 13.0, *)
-    func fetchLatestHRV() async throws -> (Double, Date) {
+    public func fetchLatestHRV() async throws -> (Double, Date) {
         try await fetchWithCache("fetchLatestHRV") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchLatestHRV { continuation.resume(returning: $0) }
@@ -693,7 +693,7 @@ final class HealthDataStore {
     ///
     /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
     @available(iOS 13.0, *)
-    func fetchLatestRestingHR() async throws -> (Double, Date) {
+    public func fetchLatestRestingHR() async throws -> (Double, Date) {
         try await fetchWithCache("fetchLatestRestingHR") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchLatestRestingHR { continuation.resume(returning: $0) }
@@ -707,7 +707,7 @@ final class HealthDataStore {
     ///
     /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
     @available(iOS 13.0, *)
-    func fetchLatestHRRecovery() async throws -> (Double, Date) {
+    public func fetchLatestHRRecovery() async throws -> (Double, Date) {
         try await fetchWithCache("fetchLatestHRRecovery") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchLatestHRRecovery { continuation.resume(returning: $0) }
@@ -721,7 +721,7 @@ final class HealthDataStore {
     ///
     /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
     @available(iOS 13.0, *)
-    func fetchLatestRespiratoryRate() async throws -> (Double, Date) {
+    public func fetchLatestRespiratoryRate() async throws -> (Double, Date) {
         try await fetchWithCache("fetchLatestRespiratoryRate") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchLatestRespiratoryRate { continuation.resume(returning: $0) }
@@ -885,7 +885,7 @@ final class HealthDataStore {
     /// }
     /// ```
     @available(iOS 13.0, *)
-    func heartRateStream() -> AsyncThrowingStream<(Double, Date), Error> {
+    public func heartRateStream() -> AsyncThrowingStream<(Double, Date), Error> {
         AsyncThrowingStream { continuation in
             guard let type = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
                 continuation.finish(throwing: HealthDataError.sampleUnavailable)
