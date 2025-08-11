@@ -9,19 +9,28 @@
 
 import Foundation
 import HealthKit
+import Combine
 
 @MainActor
 public class RecoveryBiometricsViewModel: ObservableObject {
 
     private let service: RecoveryDataServicing
+    private let errorManager: ErrorManager
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Published Properties (Biometric Metrics)
 
     // Status/messages for missing data
     @Published var missingMandatory: [String] = []
     @Published var missingSecondary: [String] = []
+    
+    // Legacy error properties (kept for backward compatibility)
     @Published var errorMessage: String? = nil
     @Published var warningMessage: String? = nil
+    
+    // New error handling properties
+    @Published var hasError: Bool = false
+    @Published var errorPresentation: ErrorPresentation? = nil
 
 
     /// Indicates whether HealthKit authorization was granted.
@@ -67,10 +76,34 @@ public class RecoveryBiometricsViewModel: ObservableObject {
     /// Initializes the ViewModel with a recovery data service.
     /// Call `loadAllMetrics()` from the view to fetch data.
     ///
-    /// - Parameter service: The service to use for fetching recovery data
-    public init(service: RecoveryDataServicing) {
+    /// - Parameters:
+    ///   - service: The service to use for fetching recovery data
+    ///   - errorManager: The error manager for handling error presentation
+    public init(
+        service: RecoveryDataServicing,
+        errorManager: ErrorManager
+    ) {
         self.service = service
+        self.errorManager = errorManager
+        
+        // Observe error manager state changes
+        self.hasError = errorManager.isShowingError
+        self.errorPresentation = errorManager.getCurrentErrorPresentation()
+        
+        // Subscribe to error manager updates using Combine
+        errorManager.objectWillChange.sink { [weak self] _ in
+            Task { @MainActor in
+                self?.hasError = errorManager.isShowingError
+                self?.errorPresentation = errorManager.getCurrentErrorPresentation()
+            }
+        }.store(in: &cancellables)
         // No automatic fetch; call loadAllMetrics() from the view with .task
+    }
+    
+    /// Convenience initializer that uses the shared ErrorManager
+    @MainActor
+    public convenience init(service: RecoveryDataServicing) {
+        self.init(service: service, errorManager: ErrorManager.shared)
     }
 
     // MARK: - Data Fetching
@@ -125,8 +158,22 @@ public class RecoveryBiometricsViewModel: ObservableObject {
 
         if !missingMandatory.isEmpty {
             readinessScore = 0
+            
+            // Create structured error for missing mandatory data
+            let missingDataError = HealthDataError.dataUnavailable(
+                metric: missingMandatory.joined(separator: ", "),
+                timeRange: "current"
+            )
+            
+            errorManager.handleError(missingDataError, context: [
+                "missing_metrics": missingMandatory,
+                "operation": "readiness_calculation"
+            ])
+            
+            // Legacy error message for backward compatibility
             errorMessage = "Missing required data: " + missingMandatory.joined(separator: ", ") + ". Grant Health permissions and wear your Apple Watch to enable these metrics."
             warningMessage = nil
+            
             // Ensure the trend still renders (will pad to a flat line if empty)
             loadReadinessTrend()
             return
@@ -135,6 +182,18 @@ public class RecoveryBiometricsViewModel: ObservableObject {
         }
 
         if !missingSecondary.isEmpty {
+            // Create warning for missing secondary data
+            let missingSecondaryWarning = HealthDataError.dataUnavailable(
+                metric: missingSecondary.joined(separator: ", "),
+                timeRange: "current"
+            )
+            
+            errorManager.handleError(missingSecondaryWarning, context: [
+                "missing_secondary_metrics": missingSecondary,
+                "operation": "readiness_calculation"
+            ])
+            
+            // Legacy warning message for backward compatibility
             warningMessage = "Score may be less accurate. Missing: " + missingSecondary.joined(separator: ", ") + "."
         } else {
             warningMessage = nil
@@ -145,16 +204,35 @@ public class RecoveryBiometricsViewModel: ObservableObject {
         let rhrPair: (Double, Date) = (mRHR!, Date())
         let hrrPair: (Double, Date) = (mHRR!, Date())
 
+        // Ensure values are in expected ranges with fallbacks
         let respPair: (Double, Date) = bundle.respiratoryRate ?? (bundle.baseline.averageRespiratoryRate, Date())
-        let wristPair: (Double, Date) = bundle.wristTemp ?? (bundle.baseline.averageWristTemp, Date())
-        let o2Pair: (Double, Date) = bundle.oxygenSaturation ?? (98.0, Date())
+        
+        // Wrist temp should be in reasonable Celsius range (30-45°C)
+        var wristTempValue = bundle.wristTemp?.0 ?? bundle.baseline.averageWristTemp
+        if wristTempValue < 30 || wristTempValue > 45 {
+            wristTempValue = bundle.baseline.averageWristTemp
+        }
+        let wristPair: (Double, Date) = (wristTempValue, bundle.wristTemp?.1 ?? Date())
+        
+        // O2 should be in percentage range (70-100%)
+        var o2Value = bundle.oxygenSaturation?.0 ?? 98.0
+        if o2Value <= 1.0 {
+            // Convert from decimal to percentage
+            o2Value *= 100.0
+        }
+        if o2Value < 70 || o2Value > 100 {
+            o2Value = 98.0  // Safe default
+        }
+        let o2Pair: (Double, Date) = (o2Value, bundle.oxygenSaturation?.1 ?? Date())
+        
         let energyPair: (Double, Date) = bundle.activeEnergyBurned ?? (0.0, Date())
         let mindfulPair: (Double, Date) = bundle.mindfulMinutes ?? (0.0, Date())
 
-        // Sleep default: 7h total, 1h deep, last night
+        // Sleep default: 7h total, 1h deep, last night with reasonable stage breakdown
         let end = Date()
         let start = Calendar.current.date(byAdding: .hour, value: -7, to: end) ?? end
-        let sleepTuple: (Double, Double, Date, Date, [String : Double]) = bundle.sleepInfo ?? (7.0, 1.0, start, end, [:])
+        let defaultSleepStages: [String: Double] = ["Deep": 1.0, "REM": 1.5, "Core": 4.5]
+        let sleepTuple: (Double, Double, Date, Date, [String : Double]) = bundle.sleepInfo ?? (7.0, 1.0, start, end, defaultSleepStages)
 
         let input = ReadinessInputBuilder.build(
             hrv: hrvPair,
@@ -168,9 +246,68 @@ public class RecoveryBiometricsViewModel: ObservableObject {
             mindfulMinutes: mindfulPair
         )
 
-        let score = ReadinessCalculator().calculateScore(from: input, baseline: bundle.baseline)
-        readinessScore = score
-        appendToTrend(score)
+        // Log input values for debugging
+        ErrorLogger.shared.debug(
+            "Attempting readiness score calculation",
+            category: .calculation,
+            context: [
+                "input_hrv": input.hrv,
+                "input_rhr": input.rhr,
+                "input_hrr": input.hrr,
+                "input_sleep_hours": input.sleepHours,
+                "input_deep_sleep": input.deepSleep,
+                "input_wrist_temp": input.wristTemp,
+                "input_o2": input.o2,
+                "baseline_hrv": bundle.baseline.averageHRV,
+                "baseline_rhr": bundle.baseline.averageRHR,
+                "baseline_hrr": bundle.baseline.averageHRR
+            ]
+        )
+
+        do {
+            let score = try ReadinessCalculator().calculateScore(from: input, baseline: bundle.baseline)
+            readinessScore = score
+            appendToTrend(score)
+            
+            ErrorLogger.shared.info(
+                "Readiness score calculated successfully: \(score)",
+                category: .calculation
+            )
+            
+            // Clear any previous calculation errors
+            if errorManager.currentError is CalculationError {
+                errorManager.dismissError()
+            }
+        } catch let error as CalculationError {
+            ErrorLogger.shared.error(
+                "Readiness calculation failed: \(error)",
+                category: .calculation,
+                context: [
+                    "error_code": error.code,
+                    "error_message": error.message
+                ]
+            )
+            
+            errorManager.handleError(error, context: [
+                "operation": "readiness_score_calculation",
+                "has_mandatory_data": true
+            ])
+            
+            // Fallback score for UI display
+            readinessScore = 0
+        } catch {
+            let wrappedError = CalculationError.algorithmError(
+                name: "readiness_calculation",
+                details: error.localizedDescription
+            )
+            errorManager.handleError(wrappedError, context: [
+                "operation": "readiness_score_calculation",
+                "unexpected_error": true
+            ])
+            
+            // Fallback score for UI display
+            readinessScore = 0
+        }
     }
 
     /// Refreshes HealthKit authorization status and updates the published `isAuthorized` property.
@@ -185,9 +322,37 @@ public class RecoveryBiometricsViewModel: ObservableObject {
             HealthDataStore.shared.getAuthorizationRequestStatus { status in
                 Task { @MainActor in
                     self.isAuthorized = (status == .unnecessary)
+                    
+                    if status != .unnecessary {
+                        let authError = HealthDataError.notAuthorized(requestedTypes: [])
+                        self.errorManager.handleError(authError, context: [
+                            "operation": "authorization_check",
+                            "status": status.rawValue
+                        ])
+                    }
+                    
                     continuation.resume()
                 }
             }
+        }
+    }
+    
+    // MARK: - Error Handling Methods
+    
+    /// Dismiss the current error being displayed
+    public func dismissError() {
+        errorManager.dismissError()
+    }
+    
+    /// Retry the last failed operation
+    public func retryLastOperation() {
+        errorManager.retryLastOperation()
+    }
+    
+    /// Manually trigger a retry of data loading
+    public func retryDataLoad() {
+        Task {
+            await loadAllMetrics()
         }
     }
 

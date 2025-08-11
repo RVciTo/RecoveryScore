@@ -10,6 +10,8 @@
 import HealthKit
 import HealthKitUI
 import UIKit
+import os.log
+import Foundation
 
 /// Protocol defining HealthKit data access methods for Athletica.
 public protocol HealthDataStoreProtocol {
@@ -19,22 +21,22 @@ public protocol HealthDataStoreProtocol {
     func requestAuthorization() async throws
 
     /// Fetches the most recent Heart Rate Variability (SDNN) sample.
-    /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
+    /// - Throws: `HealthDataError.dataUnavailable` if unavailable.
     @available(iOS 13.0, *)
     func fetchLatestHRV() async throws -> (Double, Date)
 
     /// Fetches the most recent resting heart rate sample.
-    /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
+    /// - Throws: `HealthDataError.dataUnavailable` if unavailable.
     @available(iOS 13.0, *)
     func fetchLatestRestingHR() async throws -> (Double, Date)
 
     /// Fetches the most recent heart rate recovery (1-min) sample.
-    /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
+    /// - Throws: `HealthDataError.dataUnavailable` if unavailable.
     @available(iOS 13.0, *)
     func fetchLatestHRRecovery() async throws -> (Double, Date)
 
     /// Fetches the most recent respiratory rate sample.
-    /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
+    /// - Throws: `HealthDataError.dataUnavailable` if unavailable.
     @available(iOS 13.0, *)
     func fetchLatestRespiratoryRate() async throws -> (Double, Date)
 
@@ -44,8 +46,9 @@ public protocol HealthDataStoreProtocol {
     func heartRateStream() -> AsyncThrowingStream<(Double, Date), Error>
 }
 
-/// Errors thrown by HealthDataStore.
-public enum HealthDataError: Error {
+/// Legacy errors thrown by HealthDataStore (deprecated - use RecoveryError types instead).
+@available(*, deprecated, message: "Use HealthDataError from RecoveryError.swift instead")
+public enum LegacyHealthDataError: Error {
     /// Authorization request was denied.
     case notAuthorized
     /// No sample data available for the requested metric.
@@ -156,22 +159,30 @@ public final class HealthDataStore {
     ///
     /// - Parameter completion: Called on the main thread with `true` if authorization succeeded.
     func requestAuthorization(completion: @escaping (Bool) -> Void) {
-        print("HKManager.requestAuthorization called")
+        ErrorLogger.shared.debug("HealthKit authorization requested", category: .healthData)
+        
         // If workouts are already authorized, no need to prompt again
         let status = healthStore.authorizationStatus(for: .workoutType())
         if status == .sharingAuthorized {
-            print("HK already authorized ✔︎")
+            ErrorLogger.shared.info("HealthKit already authorized", category: .healthData)
             DispatchQueue.main.async {
                 completion(true)
             }
             return
         }
+        
         healthStore.requestAuthorization(toShare: nil, read: readTypes) { success, error in
             if let error = error {
-                print("HK auth error: \(error.localizedDescription)")
+                let healthError = HealthDataError.underlyingError(error)
+                ErrorLogger.shared.log(healthError, context: ["operation": "authorization"])
             } else {
-                print("HK auth prompt finished. success = \(success)")
+                ErrorLogger.shared.info(
+                    "HealthKit authorization completed",
+                    category: .healthData,
+                    context: ["success": success]
+                )
             }
+            
             DispatchQueue.main.async {
                 completion(success)
             }
@@ -601,9 +612,14 @@ public final class HealthDataStore {
     // Calculate readiness score using input and baseline
     func calculateReadinessScore(with input: ReadinessInput, completion: @escaping (Int) -> Void) {
         Task {
-            let baseline = await BaselineCalculator().calculateBaseline()
-            let score = ReadinessCalculator().calculateScore(from: input, baseline: baseline)
-            completion(score)
+            do {
+                let baseline = await BaselineCalculator().calculateBaseline()
+                let score = try ReadinessCalculator().calculateScore(from: input, baseline: baseline)
+                completion(score)
+            } catch {
+                // Return fallback score on error
+                completion(0)
+            }
         }
     }
     // Fetch quantity samples for a given identifier and unit over the past N days
@@ -664,8 +680,11 @@ public final class HealthDataStore {
                 continuation.resume(returning: success)
             }
         }
+        
         if !success {
-            throw HealthDataError.notAuthorized
+            let error = HealthDataError.notAuthorized(requestedTypes: Array(readTypes))
+            ErrorLogger.shared.log(error, context: ["async_operation": "requestAuthorization"])
+            throw error
         }
     }
 
@@ -680,11 +699,25 @@ public final class HealthDataStore {
     /// ```
     @available(iOS 13.0, *)
     public func fetchLatestHRV() async throws -> (Double, Date) {
-        try await fetchWithCache("fetchLatestHRV") { [unowned self] in
+        ErrorLogger.shared.debug("Fetching latest HRV data", category: .healthData)
+        
+        return try await fetchWithCache("fetchLatestHRV") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchLatestHRV { continuation.resume(returning: $0) }
             }
-            guard let val = result else { throw HealthDataError.sampleUnavailable }
+            
+            guard let val = result else {
+                let error = HealthDataError.dataUnavailable(metric: "HRV", timeRange: "recent")
+                ErrorLogger.shared.log(error, context: ["operation": "fetchLatestHRV"])
+                throw error
+            }
+            
+            ErrorLogger.shared.debug(
+                "Successfully fetched HRV data",
+                category: .healthData,
+                context: ["value": val.0, "date": val.1.timeIntervalSince1970]
+            )
+            
             return val
         }
     }
@@ -694,11 +727,14 @@ public final class HealthDataStore {
     /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
     @available(iOS 13.0, *)
     public func fetchLatestRestingHR() async throws -> (Double, Date) {
-        try await fetchWithCache("fetchLatestRestingHR") { [unowned self] in
+        return try await fetchWithCache("fetchLatestRestingHR") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchLatestRestingHR { continuation.resume(returning: $0) }
             }
-            guard let val = result else { throw HealthDataError.sampleUnavailable }
+            guard let val = result else { 
+                let error = HealthDataError.dataUnavailable(metric: "Resting HR", timeRange: "recent")
+                throw error
+            }
             return val
         }
     }
@@ -708,11 +744,14 @@ public final class HealthDataStore {
     /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
     @available(iOS 13.0, *)
     public func fetchLatestHRRecovery() async throws -> (Double, Date) {
-        try await fetchWithCache("fetchLatestHRRecovery") { [unowned self] in
+        return try await fetchWithCache("fetchLatestHRRecovery") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchLatestHRRecovery { continuation.resume(returning: $0) }
             }
-            guard let val = result else { throw HealthDataError.sampleUnavailable }
+            guard let val = result else { 
+                let error = HealthDataError.dataUnavailable(metric: "HR Recovery", timeRange: "recent")
+                throw error
+            }
             return val
         }
     }
@@ -722,11 +761,14 @@ public final class HealthDataStore {
     /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
     @available(iOS 13.0, *)
     public func fetchLatestRespiratoryRate() async throws -> (Double, Date) {
-        try await fetchWithCache("fetchLatestRespiratoryRate") { [unowned self] in
+        return try await fetchWithCache("fetchLatestRespiratoryRate") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchLatestRespiratoryRate { continuation.resume(returning: $0) }
             }
-            guard let val = result else { throw HealthDataError.sampleUnavailable }
+            guard let val = result else { 
+                let error = HealthDataError.dataUnavailable(metric: "Respiratory Rate", timeRange: "recent")
+                throw error
+            }
             return val
         }
     }
@@ -736,11 +778,14 @@ public final class HealthDataStore {
     /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
     @available(iOS 13.0, *)
     func fetchLastNightSleep() async throws -> (Double, Double, Date, Date, [String: Double]) {
-        try await fetchWithCache("fetchLastNightSleep") { [unowned self] in
+        return try await fetchWithCache("fetchLastNightSleep") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchLastNightSleep { continuation.resume(returning: $0) }
             }
-            guard let val = result else { throw HealthDataError.sampleUnavailable }
+            guard let val = result else { 
+                let error = HealthDataError.dataUnavailable(metric: "Sleep", timeRange: "recent")
+                throw error
+            }
             return val
         }
     }
@@ -750,11 +795,14 @@ public final class HealthDataStore {
     /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
     @available(iOS 13.0, *)
     func fetchLatestWristTemperature() async throws -> (Double, Date) {
-        try await fetchWithCache("fetchLatestWristTemperature") { [unowned self] in
+        return try await fetchWithCache("fetchLatestWristTemperature") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchLatestWristTemperature { continuation.resume(returning: $0) }
             }
-            guard let val = result else { throw HealthDataError.sampleUnavailable }
+            guard let val = result else { 
+                let error = HealthDataError.dataUnavailable(metric: "Wrist Temperature", timeRange: "recent")
+                throw error
+            }
             return val
         }
     }
@@ -764,11 +812,14 @@ public final class HealthDataStore {
     /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
     @available(iOS 13.0, *)
     func fetchLatestOxygenSaturation() async throws -> (Double, Date) {
-        try await fetchWithCache("fetchLatestOxygenSaturation") { [unowned self] in
+        return try await fetchWithCache("fetchLatestOxygenSaturation") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchLatestOxygenSaturation { continuation.resume(returning: $0) }
             }
-            guard let val = result else { throw HealthDataError.sampleUnavailable }
+            guard let val = result else { 
+                let error = HealthDataError.dataUnavailable(metric: "Oxygen Saturation", timeRange: "recent")
+                throw error
+            }
             return val
         }
     }
@@ -792,11 +843,14 @@ public final class HealthDataStore {
     /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
     @available(iOS 13.0, *)
     func fetchActiveEnergyBurned() async throws -> (Double, Date) {
-        try await fetchWithCache("fetchActiveEnergyBurned") { [unowned self] in
+        return try await fetchWithCache("fetchActiveEnergyBurned") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchActiveEnergyBurned { continuation.resume(returning: $0) }
             }
-            guard let val = result else { throw HealthDataError.sampleUnavailable }
+            guard let val = result else { 
+                let error = HealthDataError.dataUnavailable(metric: "Active Energy", timeRange: "recent")
+                throw error
+            }
             return val
         }
     }
@@ -806,11 +860,14 @@ public final class HealthDataStore {
     /// - Throws: `HealthDataError.sampleUnavailable` if unavailable.
     @available(iOS 13.0, *)
     func fetchMindfulMinutes() async throws -> (Double, Date) {
-        try await fetchWithCache("fetchMindfulMinutes") { [unowned self] in
+        return try await fetchWithCache("fetchMindfulMinutes") { [unowned self] in
             let result = await withCheckedContinuation { continuation in
                 self.fetchMindfulMinutes { continuation.resume(returning: $0) }
             }
-            guard let val = result else { throw HealthDataError.sampleUnavailable }
+            guard let val = result else { 
+                let error = HealthDataError.dataUnavailable(metric: "Mindful Minutes", timeRange: "recent")
+                throw error
+            }
             return val
         }
     }
@@ -888,7 +945,8 @@ public final class HealthDataStore {
     public func heartRateStream() -> AsyncThrowingStream<(Double, Date), Error> {
         AsyncThrowingStream { continuation in
             guard let type = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
-                continuation.finish(throwing: HealthDataError.sampleUnavailable)
+                let error = HealthDataError.dataUnavailable(metric: "Heart Rate", timeRange: "stream")
+                continuation.finish(throwing: error)
                 return
             }
             let predicate = HKQuery.predicateForSamples(withStart: Date(), end: nil, options: .strictStartDate)

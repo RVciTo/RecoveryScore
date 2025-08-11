@@ -17,7 +17,7 @@
 ///
 import Foundation
 
-struct ReadinessCalculator {
+public struct ReadinessCalculator {
     /// Computes the readiness score based on current inputs and baseline values.
     ///
     /// Applies the exact scoring algorithm specified in SCORING.md, starting from 100 and
@@ -28,8 +28,136 @@ struct ReadinessCalculator {
     ///   - input: The current biometric and behavioral values from today's data
     ///   - baseline: The user's personalized 7-day average baselines for comparison
     /// - Returns: A score from 0 to 100 indicating recovery and readiness level (clamped)
+    /// - Throws: `CalculationError` if input validation fails or calculation errors occur
     /// - Note: Score calculation is deterministic and stateless for consistent results
-    func calculateScore(from input: ReadinessInput, baseline: BaselineData) -> Int {
+    public func calculateScore(from input: ReadinessInput, baseline: BaselineData) throws -> Int {
+        // Validate inputs before calculation
+        try validateInputs(input: input, baseline: baseline)
+        
+        ErrorLogger.shared.debug(
+            "Starting readiness score calculation",
+            category: .calculation,
+            context: [
+                "hrv": input.hrv,
+                "rhr": input.rhr,
+                "hrr": input.hrr,
+                "baseline_hrv": baseline.averageHRV
+            ]
+        )
+        
+        do {
+            let score = try performScoreCalculation(input: input, baseline: baseline)
+            
+            ErrorLogger.shared.info(
+                "Readiness score calculated successfully",
+                category: .calculation,
+                context: [
+                    "score": score,
+                    "algorithm": "readiness_v1"
+                ]
+            )
+            
+            return score
+        } catch {
+            let calcError = CalculationError.scoreCalculationFailed(
+                algorithm: "readiness_v1",
+                reason: error.localizedDescription
+            )
+            ErrorLogger.shared.log(calcError, context: ["input_validation": "passed"])
+            throw calcError
+        }
+    }
+    
+    /// Validates inputs before calculation
+    private func validateInputs(input: ReadinessInput, baseline: BaselineData) throws {
+        ErrorLogger.shared.debug(
+            "Validating readiness calculator inputs",
+            category: .calculation,
+            context: [
+                "hrv": input.hrv,
+                "rhr": input.rhr,
+                "hrr": input.hrr,
+                "baseline_hrv": baseline.averageHRV,
+                "baseline_rhr": baseline.averageRHR,
+                "baseline_hrr": baseline.averageHRR,
+                "sleep_hours": input.sleepHours,
+                "deep_sleep": input.deepSleep,
+                "wrist_temp": input.wristTemp,
+                "o2": input.o2
+            ]
+        )
+        
+        // Validate HRV
+        guard input.hrv > 0 && input.hrv < 1000 else {
+            ErrorLogger.shared.error(
+                "HRV input validation failed: \(input.hrv)",
+                category: .calculation
+            )
+            throw CalculationError.invalidInput(parameter: "HRV", value: input.hrv)
+        }
+        
+        guard baseline.averageHRV > 0 else {
+            ErrorLogger.shared.error(
+                "Baseline HRV validation failed: \(baseline.averageHRV)",
+                category: .calculation
+            )
+            throw CalculationError.dataValidationFailed(
+                field: "baseline HRV",
+                constraints: "must be > 0"
+            )
+        }
+        
+        // Validate RHR
+        guard input.rhr > 0 && input.rhr < 200 else {
+            ErrorLogger.shared.error(
+                "RHR input validation failed: \(input.rhr)",
+                category: .calculation
+            )
+            throw CalculationError.invalidInput(parameter: "RHR", value: input.rhr)
+        }
+        
+        guard baseline.averageRHR > 0 else {
+            ErrorLogger.shared.error(
+                "Baseline RHR validation failed: \(baseline.averageRHR)",
+                category: .calculation
+            )
+            throw CalculationError.dataValidationFailed(
+                field: "baseline RHR",
+                constraints: "must be > 0"
+            )
+        }
+        
+        // Validate HRR
+        guard input.hrr >= 0 && input.hrr < 100 else {
+            ErrorLogger.shared.error(
+                "HRR input validation failed: \(input.hrr)",
+                category: .calculation
+            )
+            throw CalculationError.invalidInput(parameter: "HRR", value: input.hrr)
+        }
+        
+        // Validate sleep values
+        if input.sleepHours < 0 || input.sleepHours > 24 {
+            throw CalculationError.invalidInput(parameter: "sleepHours", value: input.sleepHours)
+        }
+        
+        if input.deepSleep < 0 || input.deepSleep > input.sleepHours {
+            throw CalculationError.invalidInput(parameter: "deepSleep", value: input.deepSleep)
+        }
+        
+        // Validate temperature
+        guard input.wristTemp > 30 && input.wristTemp < 45 else {
+            throw CalculationError.invalidInput(parameter: "wristTemp", value: input.wristTemp)
+        }
+        
+        // Validate oxygen saturation
+        guard input.o2 >= 70 && input.o2 <= 100 else {
+            throw CalculationError.invalidInput(parameter: "o2", value: input.o2)
+        }
+    }
+    
+    /// Performs the actual score calculation with error handling
+    private func performScoreCalculation(input: ReadinessInput, baseline: BaselineData) throws -> Int {
         var score = 100
 
         // MARK: - HRV
@@ -123,22 +251,27 @@ struct ReadinessCalculator {
 
         // MARK: - Workouts
         // 🏋️‍♀️ 7‑day cumulative load and monotony
-        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: now)!
+        guard let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: now) else {
+            throw CalculationError.algorithmError(name: "workout_analysis", details: "Failed to calculate week ago date")
+        }
+        
         let weekWorkouts = input.recentWorkouts.filter { $0.date >= weekAgo }
         let dailyBuckets = Dictionary(grouping: weekWorkouts, by: { Calendar.current.startOfDay(for: $0.date) })
         let dailyLoads: [Double] = dailyBuckets.values.map { day -> Double in
             day.reduce(0.0) { $0 + (($1.rpe ?? 0) * ($1.duration / 60.0)) }
         }
         let weeklyLoad = dailyLoads.reduce(0, +)
+        
         // Weekly load penalty only when this week's load is meaningfully above long‑term average
         if baseline.averageWeeklyLoad > 0 && weekWorkouts.count >= 3 && weeklyLoad > 1.25 * baseline.averageWeeklyLoad {
             score -= 10
         }
-        // Monotony = mean / std (avoid divide by zero)
         
+        // Monotony = mean / std (avoid divide by zero)
         let mean = dailyLoads.isEmpty ? 0 : (dailyLoads.reduce(0,+) / Double(dailyLoads.count))
         let variance = dailyLoads.reduce(0.0) { $0 + pow(($1 - mean), 2) }
         let std = dailyLoads.count > 1 ? sqrt(variance / Double(dailyLoads.count - 1)) : 0
+        
         // Monotony guard: require enough days and meaningful variability
         let nonZeroDays = dailyLoads.filter { $0 > 0 }.count
         if dailyLoads.count >= 4 && nonZeroDays >= 3 && std > 0.01 {
@@ -147,8 +280,21 @@ struct ReadinessCalculator {
                 score -= 5
             }
         }
-    
 
-        return max(0, min(score, 100))
+        let finalScore = max(0, min(score, 100))
+        
+        ErrorLogger.shared.debug(
+            "Score calculation breakdown",
+            category: .calculation,
+            context: [
+                "raw_score": score,
+                "final_score": finalScore,
+                "hrv_change": hrvChange,
+                "rhr_change": rhrChange,
+                "weekly_load": weeklyLoad
+            ]
+        )
+
+        return finalScore
     }
 }
