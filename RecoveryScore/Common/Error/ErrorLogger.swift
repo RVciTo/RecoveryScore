@@ -243,7 +243,7 @@ public final class ErrorLogger: ErrorLogging {
             analyticsData["context"] = context
         }
         
-        // TODO: Integrate with crash reporting service
+        // Note: Future integration point for crash reporting services (Firebase, Sentry, etc.)
         #if DEBUG
         print("ANALYTICS_LOG: \(analyticsData)")
         #endif

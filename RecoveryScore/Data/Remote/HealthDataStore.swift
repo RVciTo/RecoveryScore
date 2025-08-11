@@ -1,11 +1,8 @@
 /// HealthDataStore.swift
 ///
 /// Data‑layer component that wraps HealthKit on‑device storage.
-/// Provides read‑only access to health and activity metrics needed by Athletica’s
-/// offline build.
-///
-/// TODO: – Conform to `HealthDataStoreProtocol` and move to `Data/HealthKit` package
-///       when we introduce the dependency‑injection container.
+/// Provides read‑only access to health and activity metrics needed for 
+/// recovery score calculation.
 
 import HealthKit
 import HealthKitUI
@@ -84,7 +81,7 @@ public enum HealthKitUnitCatalog {
     public static let dietaryVitaminB6 = HKUnit.gramUnit(with: .milli)      // milligrams
     public static let dietaryVitaminB12 = HKUnit.gramUnit(with: .milli)     // milligrams
     public static let dietaryVitaminD = HKUnit.gramUnit(with: .milli)       // milligrams
-    // TODO: Add units for other new metrics (e.g., VO2Max, distance, etc.)
+    // Note: Additional units can be added here as needed for future metrics
 }
 public final class HealthDataStore {
     public static let shared = HealthDataStore()
